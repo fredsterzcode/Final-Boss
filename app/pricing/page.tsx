@@ -142,19 +142,21 @@ export default function PricingPage() {
               {/* Stripe Buy Button */}
               {isAnnual ? (
                 <div className="stripe-annual-button">
-                  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-                  <stripe-buy-button
-                    buy-button-id="buy_btn_1RvFaILJrN1wbUIK06yL5RsQ"
-                    publishable-key="pk_live_51RssivLJrN1wbUIKWUghL72TpvBrMbmX2K10pDKQkvGvSdcxxu7VazmdIxfXeQbwpeZxGzeHE1GuWSWaCBZ86Ff100wWjRfu6s"
-                  />
+                  <button 
+                    onClick={() => window.open('https://buy.stripe.com/your-annual-link', '_blank')}
+                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    Get Annual Plan
+                  </button>
                 </div>
               ) : (
                 <div className="stripe-monthly-button">
-                  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-                  <stripe-buy-button
-                    buy-button-id="buy_btn_1RvFZ9LJrN1wbUIKXCVp4sJ6"
-                    publishable-key="pk_live_51RssivLJrN1wbUIKWUghL72TpvBrMbmX2K10pDKQkvGvSdcxxu7VazmdIxfXeQbwpeZxGzeHE1GuWSWaCBZ86Ff100wWjRfu6s"
-                  />
+                  <button 
+                    onClick={() => window.open('https://buy.stripe.com/your-monthly-link', '_blank')}
+                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    Get Monthly Plan
+                  </button>
                 </div>
               )}
             </div>
