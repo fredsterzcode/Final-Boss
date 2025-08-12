@@ -32,47 +32,47 @@ export async function POST(request: NextRequest) {
 
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session)
+        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session, supabase)
         break
       
       case 'customer.subscription.created':
-        await handleSubscriptionCreated(event.data.object as Stripe.Subscription)
+        await handleSubscriptionCreated(event.data.object as Stripe.Subscription, supabase)
         break
       
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
+        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription, supabase)
         break
       
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
+        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription, supabase)
         break
       
       case 'customer.subscription.trial_will_end':
-        await handleTrialWillEnd(event.data.object as Stripe.Subscription)
+        await handleTrialWillEnd(event.data.object as Stripe.Subscription, supabase)
         break
       
       case 'invoice.payment_failed':
-        await handlePaymentFailed(event.data.object as Stripe.Invoice)
+        await handlePaymentFailed(event.data.object as Stripe.Invoice, supabase)
         break
       
       case 'invoice.payment_succeeded':
-        await handlePaymentSucceeded(event.data.object as Stripe.Invoice)
+        await handlePaymentSucceeded(event.data.object as Stripe.Invoice, supabase)
         break
       
       case 'invoice.payment_action_required':
-        await handlePaymentActionRequired(event.data.object as Stripe.Invoice)
+        await handlePaymentActionRequired(event.data.object as Stripe.Invoice, supabase)
         break
       
       case 'customer.created':
-        await handleCustomerCreated(event.data.object as Stripe.Customer)
+        await handleCustomerCreated(event.data.object as Stripe.Customer, supabase)
         break
       
       case 'customer.updated':
-        await handleCustomerUpdated(event.data.object as Stripe.Customer)
+        await handleCustomerUpdated(event.data.object as Stripe.Customer, supabase)
         break
       
       case 'customer.deleted':
-        await handleCustomerDeleted(event.data.object as Stripe.Customer)
+        await handleCustomerDeleted(event.data.object as Stripe.Customer, supabase)
         break
       
       default:
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session, supabase: any) {
   console.log('Processing checkout session completed:', session.id)
   
   if (session.mode === 'subscription' && session.subscription) {
@@ -116,7 +116,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   }
 }
 
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
+async function handleSubscriptionCreated(subscription: Stripe.Subscription, supabase: any) {
   console.log('Processing subscription created:', subscription.id)
   
   const userId = subscription.metadata?.supabase_user_id
@@ -133,7 +133,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   }
 }
 
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription, supabase: any) {
   console.log('Processing subscription updated:', subscription.id)
   
   const userId = subscription.metadata?.supabase_user_id
@@ -150,7 +150,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription, supabase: any) {
   console.log('Processing subscription deleted:', subscription.id)
   
   const userId = subscription.metadata?.supabase_user_id
@@ -165,7 +165,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   }
 }
 
-async function handleTrialWillEnd(subscription: Stripe.Subscription) {
+async function handleTrialWillEnd(subscription: Stripe.Subscription, supabase: any) {
   console.log('Processing trial will end:', subscription.id)
   
   const userId = subscription.metadata?.supabase_user_id
@@ -180,7 +180,7 @@ async function handleTrialWillEnd(subscription: Stripe.Subscription) {
   }
 }
 
-async function handlePaymentFailed(invoice: Stripe.Invoice) {
+async function handlePaymentFailed(invoice: Stripe.Invoice, supabase: any) {
   console.log('Processing payment failed:', invoice.id)
   
   if (invoice.subscription) {
@@ -199,7 +199,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   }
 }
 
-async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
+async function handlePaymentSucceeded(invoice: Stripe.Invoice, supabase: any) {
   console.log('Processing payment succeeded:', invoice.id)
   
   if (invoice.subscription) {
@@ -218,7 +218,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   }
 }
 
-async function handlePaymentActionRequired(invoice: Stripe.Invoice) {
+async function handlePaymentActionRequired(invoice: Stripe.Invoice, supabase: any) {
   console.log('Processing payment action required:', invoice.id)
   
   if (invoice.subscription) {
@@ -237,17 +237,17 @@ async function handlePaymentActionRequired(invoice: Stripe.Invoice) {
   }
 }
 
-async function handleCustomerCreated(customer: Stripe.Customer) {
+async function handleCustomerCreated(customer: Stripe.Customer, supabase: any) {
   console.log('Processing customer created:', customer.id)
   // Customer creation is handled by subscription events
 }
 
-async function handleCustomerUpdated(customer: Stripe.Customer) {
+async function handleCustomerUpdated(customer: Stripe.Customer, supabase: any) {
   console.log('Processing customer updated:', customer.id)
   // Customer updates are handled by subscription events
 }
 
-async function handleCustomerDeleted(customer: Stripe.Customer) {
+async function handleCustomerDeleted(customer: Stripe.Customer, supabase: any) {
   console.log('Processing customer deleted:', customer.id)
   // Customer deletion is handled by subscription events
 }
