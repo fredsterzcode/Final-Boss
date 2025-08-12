@@ -7,11 +7,20 @@ const SupabaseContext = createContext<any>(null)
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [supabase] = useState(() => {
+    // Debug: Log environment variables
+    console.log('Environment variables check:', {
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET'
+    })
+    
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('Missing Supabase environment variables')
+      console.error('Missing Supabase environment variables:', {
+        supabaseUrl: supabaseUrl || 'NOT SET',
+        supabaseAnonKey: supabaseAnonKey ? 'SET' : 'NOT SET'
+      })
       // Return a mock client to prevent crashes
       return {
         auth: {
@@ -23,6 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }
     }
     
+    console.log('Creating Supabase client with URL:', supabaseUrl)
     return createClient(supabaseUrl, supabaseAnonKey)
   })
 
