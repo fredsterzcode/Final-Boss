@@ -101,6 +101,8 @@ export function getSubscriptionStatusText(subscription: Subscription | null): st
       return 'Expired'
     case 'paused':
       return 'Paused'
+    case 'inactive':
+      return 'Inactive'
     default:
       return 'Unknown'
   }
@@ -125,6 +127,8 @@ export function getSubscriptionStatusColor(subscription: Subscription | null): s
     case 'incomplete':
     case 'paused':
       return 'orange'
+    case 'inactive':
+      return 'gray'
     default:
       return 'gray'
   }
