@@ -90,13 +90,32 @@ export default function Dashboard() {
       if (!user) return
 
       // Fetch subscription first
-      const { data: subscriptionData } = await supabase
+      const { data: subscriptionData, error: subscriptionError } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('user_id', user.id)
         .single()
 
-      if (subscriptionData) {
+      if (subscriptionError) {
+        console.error('Error fetching subscription:', subscriptionError)
+        // If it's a 406 error, the user might not have a subscription record
+        if (subscriptionError.code === '406') {
+          console.log('User has no subscription record, creating one...')
+          // Create a subscription record for the user
+          const { data: newSubscription, error: createError } = await supabase
+            .from('subscriptions')
+            .insert({
+              user_id: user.id,
+              status: 'inactive'
+            })
+            .select()
+            .single()
+          
+          if (newSubscription && !createError) {
+            setSubscription(newSubscription)
+          }
+        }
+      } else if (subscriptionData) {
         setSubscription(subscriptionData)
       }
 
@@ -179,7 +198,7 @@ export default function Dashboard() {
               </div>
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={() => router.push('/main-home-page')}
+                  onClick={() => router.push('/')}
                   className="text-blue-600 hover:text-blue-800 font-medium"
                 >
                   View Main Site
@@ -235,7 +254,7 @@ export default function Dashboard() {
                 View Pricing Plans
               </button>
               <button
-                onClick={() => router.push('/main-home-page')}
+                onClick={() => router.push('/')}
                 className="w-full max-w-md bg-gray-100 text-gray-700 py-4 px-8 rounded-lg text-xl font-medium hover:bg-gray-200 transition-colors"
               >
                 Learn More
@@ -264,7 +283,7 @@ export default function Dashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => router.push('/main-home-page')}
+                onClick={() => router.push('/')}
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
                 View Main Site

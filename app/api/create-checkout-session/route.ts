@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '../../../lib/stripe'
+import Stripe from 'stripe'
+
+// Create Stripe instance directly in the API route
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+})
 
 // Create Supabase client lazily to avoid build-time errors
 function getSupabaseClient() {
