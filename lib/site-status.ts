@@ -1,6 +1,6 @@
 // Site Status Control
 // Set this to false to show the coming soon page, true to show the main site
-export const SITE_IS_LIVE = false
+export const SITE_IS_LIVE = true
 
 // Admin access code
 export const ADMIN_ACCESS_CODE = '1579'
