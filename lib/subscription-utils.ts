@@ -1,9 +1,11 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Create Supabase client lazily to avoid build-time errors
+function getSupabaseClient() {
+  const { createClient } = require('@supabase/supabase-js')
+  return createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export interface Subscription {
   id: string
@@ -159,6 +161,7 @@ export function getDaysUntilExpiry(subscription: Subscription | null): number | 
  */
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
+    const supabase = getSupabaseClient()
     const { data, error } = await supabase
       .from('subscriptions')
       .select('*')
