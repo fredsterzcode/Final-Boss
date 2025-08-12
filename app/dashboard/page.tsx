@@ -214,6 +214,8 @@ export default function Dashboard() {
             {subscription && (
               <div className="bg-white rounded-lg p-6 shadow-sm border mb-8 max-w-md mx-auto">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Status</h3>
+                {/* Debug line to see what's being passed */}
+                <p className="text-xs text-gray-500 mb-2">Debug: Status = "{subscription.status}" (Type: {typeof subscription.status})</p>
                 <div className="flex items-center justify-center space-x-2 mb-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium bg-${getSubscriptionStatusColor(subscription)}-100 text-${getSubscriptionStatusColor(subscription)}-800`}>
                     {getSubscriptionStatusText(subscription)}
