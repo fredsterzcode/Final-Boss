@@ -45,11 +45,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = useSupabase()
-  const { upgradeToMonthly, loading: checkoutLoading } = useStripeCheckout()
+  const { upgradeToMonthly, upgradeToAnnual, loading: checkoutLoading } = useStripeCheckout()
 
   useEffect(() => {
     checkUser()
     fetchData()
+    checkSelectedPlan()
   }, [])
 
   const checkUser = async () => {
@@ -60,6 +61,28 @@ export default function Dashboard() {
     }
     setUser(user)
   }
+
+  const checkSelectedPlan = () => {
+    const selectedPlan = localStorage.getItem('selectedPlan')
+    if (selectedPlan && !subscription) {
+      // User has a selected plan but no subscription - show upgrade prompt
+      setShowUpgradePrompt(true)
+    }
+  }
+
+  const handleCompleteSubscription = () => {
+    const selectedPlan = localStorage.getItem('selectedPlan')
+    if (selectedPlan === 'annual') {
+      upgradeToAnnual()
+    } else {
+      upgradeToMonthly()
+    }
+    // Clear the selected plan
+    localStorage.removeItem('selectedPlan')
+    setShowUpgradePrompt(false)
+  }
+
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false)
 
   const fetchData = async () => {
     try {
@@ -273,6 +296,34 @@ export default function Dashboard() {
             You're on Premium - enjoy unlimited vehicles and SMS reminders!
           </p>
         </div>
+
+        {/* Upgrade Prompt Banner */}
+        {showUpgradePrompt && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">
+                    Complete Your Subscription
+                  </h3>
+                  <p className="text-blue-700">
+                    You've selected a plan - let's get you started with premium MOT tracking!
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleCompleteSubscription}
+                disabled={checkoutLoading}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {checkoutLoading ? 'Processing...' : 'Complete Setup'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Subscription Status */}
         {subscription && (

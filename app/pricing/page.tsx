@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Check, Star, Car, Bell, Shield, Clock } from 'lucide-react'
 import { useStripeCheckout } from '../../lib/hooks/useStripeCheckout'
 import { useSupabase } from '../providers'
@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const { upgradeToMonthly, upgradeToAnnual, loading } = useStripeCheckout()
   const supabase = useSupabase()
   const router = useRouter()
@@ -21,22 +23,54 @@ export default function PricingPage() {
     'Export vehicle history'
   ]
 
+  // Check authentication status on page load
+  useEffect(() => {
+    checkAuthStatus()
+  }, [])
+
+  const checkAuthStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsLoggedIn(!!user)
+    } catch (error) {
+      console.error('Error checking auth status:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleUpgrade = async () => {
-    // Check if user is logged in
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      // Redirect to sign in if not logged in
-      router.push('/auth/signin')
+    if (!isLoggedIn) {
+      // Store selected plan in localStorage for after signup
+      localStorage.setItem('selectedPlan', isAnnual ? 'annual' : 'monthly')
+      // Redirect to signup with plan context
+      router.push('/auth/signup?plan=' + (isAnnual ? 'annual' : 'monthly'))
       return
     }
 
-    // Proceed with checkout based on selected plan
+    // User is logged in, proceed with checkout
     if (isAnnual) {
       await upgradeToAnnual()
     } else {
       await upgradeToMonthly()
     }
+  }
+
+  const handleSignIn = () => {
+    // Store selected plan for after signin
+    localStorage.setItem('selectedPlan', isAnnual ? 'annual' : 'monthly')
+    router.push('/auth/signin?plan=' + (isAnnual ? 'annual' : 'monthly'))
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading pricing...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -118,13 +152,35 @@ export default function PricingPage() {
             </ul>
 
             <div className="text-center">
-              <button 
-                onClick={handleUpgrade}
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Processing...' : `Get ${isAnnual ? 'Annual' : 'Monthly'} Plan`}
-              </button>
+              {isLoggedIn ? (
+                // User is logged in - show upgrade button
+                <button 
+                  onClick={handleUpgrade}
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Processing...' : `Get ${isAnnual ? 'Annual' : 'Monthly'} Plan`}
+                </button>
+              ) : (
+                // User is not logged in - show signup/signin options
+                <div className="space-y-3">
+                  <button 
+                    onClick={handleUpgrade}
+                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    Get Started - Sign Up
+                  </button>
+                  <div className="text-sm text-gray-600">
+                    Already have an account?{' '}
+                    <button
+                      onClick={handleSignIn}
+                      className="text-blue-600 hover:text-blue-800 font-medium underline"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </div>
+              )}
               <p className="text-sm text-gray-500 mt-3">
                 Cancel anytime • No setup fees • Secure payments via Stripe
               </p>
