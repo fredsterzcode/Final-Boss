@@ -1,12 +1,31 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { useSupabase } from '../providers'
 import { useStripeCheckout } from '../../lib/hooks/useStripeCheckout'
-import { format, addDays, isAfter, isBefore, differenceInDays } from 'date-fns'
-import { Car, Plus, Crown, AlertTriangle, CheckCircle, XCircle, Lock } from 'lucide-react'
+import { 
+  Car, 
+  Plus, 
+  Bell, 
+  Settings, 
+  LogOut, 
+  CheckCircle, 
+  AlertTriangle, 
+  XCircle,
+  Crown,
+  Calendar,
+  CreditCard
+} from 'lucide-react'
+import { 
+  hasActiveSubscription, 
+  canAccessPremiumFeatures, 
+  getSubscriptionStatusText, 
+  getSubscriptionStatusColor,
+  isSubscriptionExpiringSoon,
+  getDaysUntilExpiry,
+  type Subscription 
+} from '../../lib/subscription-utils'
 
 interface Vehicle {
   id: string
@@ -15,14 +34,8 @@ interface Vehicle {
   make?: string
   model?: string
   mot_due: string
-  status: 'up_to_date' | 'due_soon' | 'expired'
-  days_until_due: number
-}
-
-interface Subscription {
-  id: string
   status: string
-  current_period_end?: string
+  days_until_due: number
 }
 
 export default function Dashboard() {
@@ -65,7 +78,7 @@ export default function Dashboard() {
       }
 
       // Only fetch vehicles if user has active subscription
-      if (subscriptionData && (subscriptionData.status === 'active' || subscriptionData.status === 'trialing')) {
+      if (canAccessPremiumFeatures(subscriptionData)) {
         try {
           const { data: vehiclesData } = await supabase
             .rpc('get_vehicles_with_status', { user_uuid: user.id })
@@ -116,7 +129,7 @@ export default function Dashboard() {
     }
   }
 
-  const isPremium = subscription?.status === 'active' || subscription?.status === 'trialing'
+  const isPremium = canAccessPremiumFeatures(subscription)
 
   if (loading) {
     return (
@@ -149,14 +162,8 @@ export default function Dashboard() {
                   View Main Site
                 </button>
                 <button
-                  onClick={() => router.push('/account')}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Account
-                </button>
-                <button
                   onClick={handleSignOut}
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-800 font-medium"
                 >
                   Sign Out
                 </button>
@@ -165,65 +172,51 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Subscription Required */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          {/* Subscription Required */}
           <div className="text-center">
-            <Lock className="w-24 h-24 text-gray-300 mx-auto mb-8" />
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Subscribe to MOT Alert
-            </h1>
+            <div className="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-blue-100 mb-8">
+              <Crown className="h-12 w-12 text-blue-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {subscription ? 'Subscription Required' : 'Welcome to MOT Alert!'}
+            </h2>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Get unlimited vehicle tracking, SMS reminders, and never miss an MOT again. 
-              Start with a 14-day free trial, then just £3/month.
+              {subscription 
+                ? 'Your subscription is currently inactive. Please renew to continue accessing your MOT tracking service.'
+                : 'Get started with professional MOT tracking, SMS reminders, and unlimited vehicle management.'
+              }
             </p>
-            <div className="mb-8">
-              <Link href="/pricing" className="text-blue-600 hover:text-blue-800 font-medium underline">
-                View full pricing options →
-              </Link>
-            </div>
-
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <Car className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Unlimited Vehicles</h3>
-                <p className="text-gray-600">Track as many vehicles as you need</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <AlertTriangle className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">SMS Reminders</h3>
-                <p className="text-gray-600">Get notified 30 days before MOT due</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
-                <Crown className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Priority Support</h3>
-                <p className="text-gray-600">Get help when you need it most</p>
-              </div>
-            </div>
-
-            {/* Pricing */}
-            <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-8 text-white mb-8">
-              <div className="text-center">
-                <h2 className="text-3xl font-bold mb-2">Premium MOT Alert</h2>
-                <div className="text-6xl font-bold mb-2">£3</div>
-                <div className="text-xl text-primary-100 mb-6">per month</div>
-                <div className="bg-white/20 rounded-lg p-4 mb-6">
-                  <p className="text-lg font-semibold">✨ 14 Days Free Trial</p>
-                  <p className="text-primary-100">Try all premium features before you pay</p>
+            
+            {subscription && (
+              <div className="bg-white rounded-lg p-6 shadow-sm border mb-8 max-w-md mx-auto">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Status</h3>
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium bg-${getSubscriptionStatusColor(subscription)}-100 text-${getSubscriptionStatusColor(subscription)}-800`}>
+                    {getSubscriptionStatusText(subscription)}
+                  </span>
                 </div>
-                <button
-                  onClick={upgradeToMonthly}
-                  disabled={checkoutLoading}
-                  className="bg-white text-primary-600 px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-100 transition-colors disabled:opacity-50"
-                >
-                  {checkoutLoading ? 'Loading...' : 'Start Free Trial Now'}
-                </button>
+                {subscription.current_period_end && (
+                  <p className="text-sm text-gray-600">
+                    Expires: {new Date(subscription.current_period_end).toLocaleDateString()}
+                  </p>
+                )}
               </div>
-            </div>
+            )}
 
-            {/* Trust Indicators */}
-            <div className="text-gray-500 text-sm">
-              <p>✓ Cancel anytime • ✓ No setup fees • ✓ Secure payments via Stripe</p>
+            <div className="space-y-4">
+              <button
+                onClick={() => router.push('/pricing')}
+                className="w-full max-w-md bg-blue-600 text-white py-4 px-8 rounded-lg text-xl font-bold hover:bg-blue-700 transition-colors"
+              >
+                View Pricing Plans
+              </button>
+              <button
+                onClick={() => router.push('/main-home-page')}
+                className="w-full max-w-md bg-gray-100 text-gray-700 py-4 px-8 rounded-lg text-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                Learn More
+              </button>
             </div>
           </div>
         </div>
@@ -293,7 +286,7 @@ export default function Dashboard() {
               {subscription.current_period_end && (
                 <div>
                   <p className="text-sm text-gray-600">Next billing</p>
-                  <p className="font-medium">{format(new Date(subscription.current_period_end), 'MMM dd, yyyy')}</p>
+                  <p className="font-medium">{new Date(subscription.current_period_end).toLocaleDateString()}</p>
                 </div>
               )}
               <div>
@@ -361,7 +354,7 @@ export default function Dashboard() {
                       <div className="text-right">
                         <p className="text-sm text-gray-600">MOT Due</p>
                         <p className="font-medium text-gray-900">
-                          {format(new Date(vehicle.mot_due), 'MMM dd, yyyy')}
+                          {new Date(vehicle.mot_due).toLocaleDateString()}
                         </p>
                         {vehicle.days_until_due > 0 && (
                           <p className="text-xs text-gray-500">
