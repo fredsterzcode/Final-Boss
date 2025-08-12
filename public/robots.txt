@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://mot-alert.com/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /account/
+Disallow: /api/
+
+# Allow important pages
+Allow: /blog/
+Allow: /privacy/
+Allow: /terms/
+Allow: /check-example/
+
+# Crawl delay (optional)
+Crawl-delay: 1

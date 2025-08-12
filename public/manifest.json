@@ -1,0 +1,62 @@
+{
+  "name": "MOT Alert - Professional Vehicle MOT Tracking Service",
+  "short_name": "MOT Alert",
+  "description": "Never miss an MOT again with our professional tracking service. SMS reminders, unlimited vehicles, and priority support.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-GB",
+  "categories": ["utilities", "productivity", "automotive"],
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "MOT Alert Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Vehicle",
+      "short_name": "Add Vehicle",
+      "description": "Quickly add a new vehicle to track",
+      "url": "/dashboard/add-vehicle",
+      "icons": [
+        {
+          "src": "/images/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Check MOT",
+      "short_name": "Check MOT",
+      "description": "Check MOT status for any vehicle",
+      "url": "/check-example",
+      "icons": [
+        {
+          "src": "/images/logo.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
