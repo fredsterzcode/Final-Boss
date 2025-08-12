@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSupabase } from '../../app/providers'
-import { getPriceId } from '../stripe'
+import { getPriceId, getStripe } from '../stripe'
 
 export const useStripeCheckout = () => {
   const [loading, setLoading] = useState(false)
@@ -42,7 +42,7 @@ export const useStripeCheckout = () => {
       const { sessionId } = await response.json()
 
       // Redirect to Stripe Checkout
-      const stripe = await loadStripe()
+      const stripe = await getStripe()
       if (stripe) {
         const { error } = await stripe.redirectToCheckout({ sessionId })
         if (error) {
@@ -68,15 +68,4 @@ export const useStripeCheckout = () => {
   }
 }
 
-// Load Stripe dynamically
-const loadStripe = async () => {
-  if (typeof window === 'undefined') return null
-  
-  try {
-    const { loadStripe } = await import('@stripe/stripe-js')
-    return await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-  } catch (error) {
-    console.error('Failed to load Stripe:', error)
-    return null
-  }
-}
+

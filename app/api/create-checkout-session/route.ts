@@ -1,21 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '../../../lib/stripe'
+import { stripe } from '@/lib/stripe'
 
 // Create Supabase client lazily to avoid build-time errors
 function getSupabaseClient() {
   const { createClient } = require('@supabase/supabase-js')
   return createClient(
-    process.env.SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 }
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Creating checkout session...')
+    
+    // Check environment variables
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing SUPABASE_SERVICE_ROLE_KEY')
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+    
     const supabase = getSupabaseClient()
     const { userId, priceId, successUrl, cancelUrl } = await request.json()
 
+    console.log('Request data:', { userId, priceId, successUrl, cancelUrl })
+
     if (!userId || !priceId) {
+      console.error('Missing required parameters')
       return NextResponse.json(
         { error: 'Missing required parameters' },
         { status: 400 }
