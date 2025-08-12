@@ -1,0 +1,5 @@
+[33m69a2858[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Remove free trial from monthly subscription - £3/month is already competitive pricing
+[33m4d1e3a8[m Fix multiple critical issues: dashboard regression, 404 errors, 406 Supabase errors, and Stripe checkout 500 errors
+[33m3e5eedb[m Fix Stripe checkout API - use relative import path and add better error logging
+[33m1b94754[m Remove debug line from dashboard - clean up for production
+[33m3c226f8[m Fix Stripe checkout API - correct import paths and add better error handling

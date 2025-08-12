@@ -89,34 +89,45 @@ export default function Dashboard() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Fetch subscription first
+      // Fetch subscription first - handle duplicate records
       const { data: subscriptionData, error: subscriptionError } = await supabase
         .from('subscriptions')
         .select('*')
         .eq('user_id', user.id)
-        .single()
+        .order('created_at', { ascending: false })
+        .limit(1)
 
       if (subscriptionError) {
         console.error('Error fetching subscription:', subscriptionError)
-        // If it's a 406 error, the user might not have a subscription record
-        if (subscriptionError.code === '406') {
-          console.log('User has no subscription record, creating one...')
-          // Create a subscription record for the user
-          const { data: newSubscription, error: createError } = await supabase
-            .from('subscriptions')
-            .insert({
-              user_id: user.id,
-              status: 'inactive'
-            })
-            .select()
-            .single()
-          
-          if (newSubscription && !createError) {
-            setSubscription(newSubscription)
+        // Create a subscription record for the user
+        const { data: newSubscription, error: createError } = await supabase
+          .from('subscriptions')
+          .insert({
+            user_id: user.id,
+            status: 'inactive'
+          })
+          .select()
+          .single()
+        
+        if (newSubscription && !createError) {
+          setSubscription(newSubscription)
+        }
+      } else if (subscriptionData && subscriptionData.length > 0) {
+        // Use the most recent subscription record
+        setSubscription(subscriptionData[0])
+        
+        // If there are multiple records, clean them up in the background
+        if (subscriptionData.length > 1) {
+          console.log(`Found ${subscriptionData.length} subscription records, cleaning up duplicates...`)
+          // Keep only the most recent one, delete the rest
+          const idsToDelete = subscriptionData.slice(1).map((sub: Subscription) => sub.id)
+          if (idsToDelete.length > 0) {
+            await supabase
+              .from('subscriptions')
+              .delete()
+              .in('id', idsToDelete)
           }
         }
-      } else if (subscriptionData) {
-        setSubscription(subscriptionData)
       }
 
       // Only fetch vehicles if user has active subscription

@@ -10,10 +10,10 @@ export default function PublicHeader() {
   const router = useRouter()
 
   const navigation = [
-    { name: 'Home', href: '/main-home-page' },
+    { name: 'Home', href: '/' },
     { name: 'Pricing', href: '/pricing' },
-    { name: 'Features', href: '/main-home-page#features' },
-    { name: 'About', href: '/main-home-page#about' },
+    { name: 'Features', href='/#features' },
+    { name: 'About', href='/#about' },
   ]
 
   return (
@@ -22,7 +22,7 @@ export default function PublicHeader() {
         <div className="flex justify-between items-center py-4">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-3">
-            <Link href="/main-home-page" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
                 <Car className="w-5 h-5 text-white" />
               </div>
