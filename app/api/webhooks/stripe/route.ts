@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '../../../lib/stripe'
+import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 
 // Create Supabase client lazily to avoid build-time errors
