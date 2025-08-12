@@ -41,14 +41,14 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose the plan that works best for you. All plans include our full MOT tracking service.
+            Get unlimited MOT tracking, SMS reminders, and professional support.
           </p>
         </div>
 
@@ -80,13 +80,19 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Basic Plan */}
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 relative">
+        {/* Single Premium Plan */}
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl border border-blue-200 p-8 relative">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center">
+                <Star className="w-4 h-4 mr-2" />
+                Most Popular
+              </div>
+            </div>
+            
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Basic</h3>
-              <p className="text-gray-600 mb-6">Perfect for individual users</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium MOT Alert</h3>
+              <p className="text-gray-600 mb-6">Unlimited vehicles & all features</p>
               <div className="mb-4">
                 <span className="text-4xl font-bold text-gray-900">
                   £{isAnnual ? '30' : '3'}
@@ -98,52 +104,6 @@ export default function PricingPage() {
               {isAnnual && (
                 <div className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full inline-block">
                   Save £6/year
-                </div>
-              )}
-            </div>
-
-            <ul className="space-y-4 mb-8">
-              {features.slice(0, 3).map((feature, index) => (
-                <li key={index} className="flex items-center">
-                  <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                  <span className="text-gray-700">{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="text-center">
-              <div className="text-sm text-gray-500 mb-4">
-                Limited to 3 vehicles
-              </div>
-              <button className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                Coming Soon
-              </button>
-            </div>
-          </div>
-
-          {/* Premium Plan */}
-          <div className="bg-white rounded-2xl shadow-xl border border-blue-200 p-8 relative">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center">
-                <Star className="w-4 h-4 mr-2" />
-                Most Popular
-              </div>
-            </div>
-            
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
-              <p className="text-gray-600 mb-6">Unlimited vehicles & features</p>
-              <div className="mb-4">
-                <span className="text-4xl font-bold text-gray-900">
-                  £{isAnnual ? '60' : '6'}
-                </span>
-                <span className="text-gray-600 ml-2">
-                  /{isAnnual ? 'year' : 'month'}
-                </span>
-              </div>
-              {isAnnual && (
-                <div className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full inline-block">
-                  Save £12/year
                 </div>
               )}
             </div>
@@ -165,6 +125,9 @@ export default function PricingPage() {
               >
                 {loading ? 'Processing...' : `Get ${isAnnual ? 'Annual' : 'Monthly'} Plan`}
               </button>
+              <p className="text-sm text-gray-500 mt-3">
+                Cancel anytime • No setup fees • Secure payments via Stripe
+              </p>
             </div>
           </div>
         </div>
