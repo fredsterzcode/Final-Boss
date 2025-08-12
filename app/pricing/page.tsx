@@ -186,7 +186,7 @@ export default function PricingPage() {
                   </div>
                 )}
                 <p className="text-sm text-gray-500 mt-3">
-                  Cancel anytime • No setup fees • Secure payments via Stripe
+                  Cancel anytime • No setup fees • No free trials • Secure payments via Stripe
                 </p>
               </div>
             </div>

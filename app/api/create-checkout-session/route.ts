@@ -93,12 +93,11 @@ export async function POST(request: NextRequest) {
       mode: 'subscription',
       success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
       cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?canceled=true`,
-      subscription_data: {
-        trial_period_days: 14,
-        metadata: {
-          supabase_user_id: userId,
-        },
-      },
+             subscription_data: {
+         metadata: {
+           supabase_user_id: userId,
+         },
+       },
       metadata: {
         supabase_user_id: userId,
       },
