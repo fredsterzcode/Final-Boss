@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useSupabase } from '../../app/providers'
-import { STRIPE_PRICES } from '../stripe'
+import { getPriceId } from '../stripe'
 
 export const useStripeCheckout = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const supabase = useSupabase()
 
-  const createCheckoutSession = async (priceId: string) => {
+  const createCheckoutSession = async (planType: 'monthly' | 'annual') => {
     try {
       setLoading(true)
       setError(null)
@@ -18,6 +18,8 @@ export const useStripeCheckout = () => {
       if (!user) {
         throw new Error('You must be logged in to upgrade')
       }
+
+      const priceId = getPriceId(planType)
 
       // Create checkout session
       const response = await fetch('/api/create-checkout-session', {
@@ -54,11 +56,13 @@ export const useStripeCheckout = () => {
     }
   }
 
-  const upgradeToPremium = () => createCheckoutSession(STRIPE_PRICES.premium)
+  const upgradeToMonthly = () => createCheckoutSession('monthly')
+  const upgradeToAnnual = () => createCheckoutSession('annual')
 
   return {
     createCheckoutSession,
-    upgradeToPremium,
+    upgradeToMonthly,
+    upgradeToAnnual,
     loading,
     error,
   }

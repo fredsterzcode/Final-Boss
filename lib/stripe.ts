@@ -13,8 +13,14 @@ export const getStripe = () => {
 
 // Price IDs for different subscription tiers
 export const STRIPE_PRICES = {
-  premium: 'price_1RusMMA5hvFtOuYMQRQN2Q8p', // £3/month
+  monthly: process.env.STRIPE_MONTHLY_PRICE_ID || 'price_monthly_placeholder',
+  annual: process.env.STRIPE_ANNUAL_PRICE_ID || 'price_annual_placeholder',
 } as const
+
+// Get price ID based on plan type
+export const getPriceId = (planType: 'monthly' | 'annual') => {
+  return STRIPE_PRICES[planType]
+}
 
 // Subscription status types
 export type SubscriptionStatus = 

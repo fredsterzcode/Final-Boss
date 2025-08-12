@@ -1,13 +1,16 @@
 'use client'
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 import { createContext, useContext, useEffect, useState } from 'react'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 const SupabaseContext = createContext<any>(null)
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [supabase] = useState(() => createClientComponentClient())
-
   return (
     <SupabaseContext.Provider value={supabase}>
       {children}

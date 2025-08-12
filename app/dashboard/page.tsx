@@ -32,7 +32,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = useSupabase()
-  const { upgradeToPremium, loading: checkoutLoading } = useStripeCheckout()
+  const { upgradeToMonthly, loading: checkoutLoading } = useStripeCheckout()
 
   useEffect(() => {
     checkUser()
@@ -212,7 +212,7 @@ export default function Dashboard() {
                   <p className="text-primary-100">Try all premium features before you pay</p>
                 </div>
                 <button
-                  onClick={upgradeToPremium}
+                  onClick={upgradeToMonthly}
                   disabled={checkoutLoading}
                   className="bg-white text-primary-600 px-8 py-4 rounded-lg text-xl font-bold hover:bg-gray-100 transition-colors disabled:opacity-50"
                 >

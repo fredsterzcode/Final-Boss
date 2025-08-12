@@ -2,9 +2,15 @@
 
 import { useState } from 'react'
 import { Check, Star, Car, Bell, Shield, Clock } from 'lucide-react'
+import { useStripeCheckout } from '../../lib/hooks/useStripeCheckout'
+import { useSupabase } from '../providers'
+import { useRouter } from 'next/navigation'
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false)
+  const { upgradeToMonthly, upgradeToAnnual, loading } = useStripeCheckout()
+  const supabase = useSupabase()
+  const router = useRouter()
 
   const features = [
     'Unlimited vehicle tracking',
@@ -14,6 +20,24 @@ export default function PricingPage() {
     'Mobile app access',
     'Export vehicle history'
   ]
+
+  const handleUpgrade = async () => {
+    // Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      // Redirect to sign in if not logged in
+      router.push('/auth/signin')
+      return
+    }
+
+    // Proceed with checkout based on selected plan
+    if (isAnnual) {
+      await upgradeToAnnual()
+    } else {
+      await upgradeToMonthly()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-16">
@@ -98,21 +122,20 @@ export default function PricingPage() {
           </div>
 
           {/* Premium Plan */}
-          <div className="bg-white rounded-2xl shadow-xl border-2 border-blue-500 p-8 relative">
-            {/* Popular Badge */}
+          <div className="bg-white rounded-2xl shadow-xl border border-blue-200 p-8 relative">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center">
+              <div className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center">
                 <Star className="w-4 h-4 mr-2" />
                 Most Popular
               </div>
             </div>
-
+            
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
-              <p className="text-gray-600 mb-6">Best value for most users</p>
+              <p className="text-gray-600 mb-6">Unlimited vehicles & features</p>
               <div className="mb-4">
                 <span className="text-4xl font-bold text-gray-900">
-                  £{isAnnual ? '30' : '3'}
+                  £{isAnnual ? '60' : '6'}
                 </span>
                 <span className="text-gray-600 ml-2">
                   /{isAnnual ? 'year' : 'month'}
@@ -120,7 +143,7 @@ export default function PricingPage() {
               </div>
               {isAnnual && (
                 <div className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full inline-block">
-                  Save £6/year
+                  Save £12/year
                 </div>
               )}
             </div>
@@ -135,30 +158,13 @@ export default function PricingPage() {
             </ul>
 
             <div className="text-center">
-              <div className="text-sm text-gray-500 mb-4">
-                Unlimited vehicles
-              </div>
-              
-              {/* Stripe Buy Button */}
-              {isAnnual ? (
-                <div className="stripe-annual-button">
-                  <button 
-                    onClick={() => window.open('https://buy.stripe.com/your-annual-link', '_blank')}
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                  >
-                    Get Annual Plan
-                  </button>
-                </div>
-              ) : (
-                <div className="stripe-monthly-button">
-                  <button 
-                    onClick={() => window.open('https://buy.stripe.com/your-monthly-link', '_blank')}
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                  >
-                    Get Monthly Plan
-                  </button>
-                </div>
-              )}
+              <button 
+                onClick={handleUpgrade}
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Processing...' : `Get ${isAnnual ? 'Annual' : 'Monthly'} Plan`}
+              </button>
             </div>
           </div>
         </div>
